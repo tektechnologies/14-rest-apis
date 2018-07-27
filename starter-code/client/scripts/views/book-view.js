@@ -77,26 +77,26 @@ var app = app || {};
 // COMMENT: What is the purpose of this method?
   bookView.initSearchFormPage = () => {
     app.showOnly('.search-view');
-
-    $('#search-form').on('submit', function(event) {
-      // COMMENT: What default behavior is being prevented here?
-      event.preventDefault();
-
-      // COMMENT: What is the event.target, below? What will happen if the user does not provide the information needed for the title, author, or isbn properties?
-      let book = {
-        title: event.target.title.value || '',
-        author: event.target.author.value || '',
-        isbn: event.target.isbn.value || '',
-      };
-
-      module.Book.find(book, bookView.initSearchResultsPage);
-
-      // COMMENT: Why are these values set to an empty string?
-      event.target.title.value = '';
-      event.target.author.value = '';
-      event.target.isbn.value = '';
-    })
   }
+
+  $('#search-form').on('submit', function(event) {
+    // COMMENT: What default behavior is being prevented here?
+    event.preventDefault();
+
+    // COMMENT: What is the event.target, below? What will happen if the user does not provide the information needed for the title, author, or isbn properties?
+    let book = {
+      title: event.target.title.value || '',
+      author: event.target.author.value || '',
+      isbn: event.target.isbn.value || '',
+    };
+
+    module.Book.find(book, bookView.initSearchResultsPage);
+
+    // COMMENT: Why are these values set to an empty string?
+    event.target.title.value = '';
+    event.target.author.value = '';
+    event.target.isbn.value = '';
+  })
 
   // COMMENT: What is the purpose of this method?
   bookView.initSearchResultsPage = () => {

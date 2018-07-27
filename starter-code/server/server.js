@@ -23,7 +23,10 @@ client.on('error', err => console.error(err));
 app.use(cors());
 
 // API Endpoints
-app.get('/api/v1/admin', (req, res) => res.send(TOKEN === parseInt(req.query.token)))
+app.get('/api/v1/admin', (req, res) => {
+  console.log({ TOKEN, query: req.query });
+  res.send(TOKEN === req.query.token);
+});
 
 app.get('/api/v1/books/find', (req, res) => {
   let url = 'https://www.googleapis.com/books/v1/volumes';
@@ -34,28 +37,34 @@ app.get('/api/v1/books/find', (req, res) => {
   if(req.query.author) query += `+inauthor:${req.query.author}`;
   if(req.query.isbn) query += `+isbn:${req.query.isbn}`;
 
+  console.log({ query });
+
   // COMMENT: What is superagent? How is it being used here? What other libraries are available that could be used for the same purpose?
   superagent.get(url)
     .query({'q': query})
     .query({'key': API_KEY})
-    .then(response => response.body.items.map((book, idx) => {
+    .then(response => {
+      console.log(response.body);
 
-      // COMMENT: The line below is an example of destructuring. Explain destructuring in your own words.
-      let { title, authors, industryIdentifiers, imageLinks, description } = book.volumeInfo;
+      return response.body.items.map((book, idx) => {
 
-      // COMMENT: What is the purpose of the following placeholder image?
-      let placeholderImage = 'http://www.newyorkpaddy.com/images/covers/NoCoverAvailable.jpg';
+        // COMMENT: The line below is an example of destructuring. Explain destructuring in your own words.
+        let { title, authors, industryIdentifiers, imageLinks, description } = book.volumeInfo;
 
-      // COMMENT: Explain how ternary operators are being used below.
-      return {
-        title: title ? title : 'No title available',
-        author: authors ? authors[0] : 'No authors available',
-        isbn: industryIdentifiers ? `ISBN_13 ${industryIdentifiers[0].identifier}` : 'No ISBN available',
-        image_url: imageLinks ? imageLinks.smallThumbnail : placeholderImage,
-        description: description ? description : 'No description available',
-        book_id: industryIdentifiers ? `${industryIdentifiers[0].identifier}` : '',
-      }
-    }))
+        // COMMENT: What is the purpose of the following placeholder image?
+        let placeholderImage = 'http://www.newyorkpaddy.com/images/covers/NoCoverAvailable.jpg';
+
+        // COMMENT: Explain how ternary operators are being used below.
+        return {
+          title: title || 'No title available',
+          author: authors ? authors[0] : 'No authors available',
+          isbn: industryIdentifiers ? `ISBN_13 ${industryIdentifiers[0].identifier}` : 'No ISBN available',
+          image_url: imageLinks ? imageLinks.smallThumbnail : placeholderImage,
+          description: description ? description : 'No description available',
+          book_id: industryIdentifiers ? `${industryIdentifiers[0].identifier}` : '',
+        }
+      })
+    })
     .then(arr => res.send(arr))
     .catch(err => {
       console.error(err);
